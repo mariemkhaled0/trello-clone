@@ -142,8 +142,8 @@ export const boardSlice = createSlice({
             Normal: 4,
           };
 
-          const priorityA = a.flag ? priorityOrder[a.flag] : 5;
-          const priorityB = b.flag ? priorityOrder[b.flag] : 5;
+          const priorityA = a.flag ? priorityOrder[a.flag] || 5 : 5;
+          const priorityB = b.flag ? priorityOrder[b.flag] || 5 : 5;
 
           return priorityB - priorityA;
         });
