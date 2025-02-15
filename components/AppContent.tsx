@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-
 import CardAdd from "./CardAdd";
 import { RootState } from "@/src/store/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,13 +20,15 @@ import AddList from "./AddList";
 import Edit from "./Edit";
 import Task from "./Task";
 import { FaSort } from "react-icons/fa";
+import ConfirmationModal from "./ConfirmationModal";
 
 function AppContent() {
   const boards = useSelector((state: RootState) => state.board.boards);
   const dispatch = useDispatch();
 
   const [editBoardId, setEditBoardId] = useState<number | null>(null);
-
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [boardId, setBoardId] = useState<number>(0);
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
     if (!destination) return;
@@ -49,6 +50,14 @@ function AppContent() {
         destinationIndex: destination.index,
       })
     );
+  };
+  const handleDeleteBoard = () => {
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    dispatch(deleteBoard({ boardId: boardId }));
+    setShowConfirm(false);
   };
 
   return (
@@ -83,9 +92,10 @@ function AppContent() {
                   )}
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() =>
-                        dispatch(deleteBoard({ boardId: board.id }))
-                      }
+                      onClick={() => {
+                        setBoardId(board.id);
+                        handleDeleteBoard();
+                      }}
                       className="text-red-400 hover:text-red-500"
                     >
                       <MdDeleteOutline />
@@ -127,6 +137,13 @@ function AppContent() {
                 <div className="hover:bg-gray-700 px-3 py-1 rounded-md flex items-center gap-2 cursor-pointer shrink-0 mt-4">
                   <CardAdd boardId={board.id} />
                 </div>
+                {showConfirm && (
+                  <ConfirmationModal
+                    message="Are you sure you want to delete this Board?"
+                    onConfirm={confirmDelete}
+                    onCancel={() => setShowConfirm(false)}
+                  />
+                )}
               </div>
             )}
           </Droppable>

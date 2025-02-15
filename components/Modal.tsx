@@ -48,6 +48,15 @@ const TaskModal: React.FC<TaskModalProps> = ({
     );
     setShowModal(false);
   };
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedDate = e.target.value;
+    const today = new Date().toISOString().split("T")[0];
+    if (selectedDate >= today) {
+      setDueDate(selectedDate);
+    } else {
+      alert("Please select a future date or today.");
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -86,7 +95,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
           <input
             type="date"
             value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
+            onChange={handleDateChange}
             className="w-full p-2 border rounded-md"
           />
         </div>

@@ -8,6 +8,7 @@ import Edit from "./Edit";
 import TaskModal from "./Modal";
 import { PiDotsThreeOutlineFill } from "react-icons/pi";
 import dayjs from "dayjs";
+import ConfirmationModal from "./ConfirmationModal";
 interface TaskProps {
   boardId: number;
   task: TaskType;
@@ -18,6 +19,8 @@ const Task: React.FC<TaskProps> = ({ boardId, task, taskIndex }) => {
   const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const flagColors: Record<string, string> = {
     Normal: "bg-green-500",
     Medium: "bg-blue-500",
@@ -48,9 +51,13 @@ const Task: React.FC<TaskProps> = ({ boardId, task, taskIndex }) => {
   };
 
   const handleDeleteTask = () => {
-    dispatch(deleteCard({ boardId, cardIndex: taskIndex }));
+    setShowConfirm(true);
   };
 
+  const confirmDelete = () => {
+    dispatch(deleteCard({ boardId, cardIndex: taskIndex }));
+    setShowConfirm(false);
+  };
   const handleSaveEdit = (newText: string) => {
     dispatch(
       updateTask({ boardId, index: taskIndex, task: { title: newText } })
@@ -64,7 +71,7 @@ const Task: React.FC<TaskProps> = ({ boardId, task, taskIndex }) => {
         task.completed ? " line-through" : "bg-gray-700"
       } text-white`}
     >
-      {isEditing ? (
+      {isEditing && task.completed === false ? (
         <Edit value={task.title} onSave={handleSaveEdit} />
       ) : (
         <div className="w-full">
@@ -85,8 +92,13 @@ const Task: React.FC<TaskProps> = ({ boardId, task, taskIndex }) => {
             </div>
 
             <div className="flex gap-1">
-              <button onClick={() => setIsEditing(!isEditing)}>
-                <MdEdit />
+              <button
+                disabled={task.completed}
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                <MdEdit
+                  className={`${task.completed === true && "text-gray-800"}`}
+                />
               </button>
               <button onClick={handleDeleteTask}>
                 <MdDelete />
@@ -95,6 +107,8 @@ const Task: React.FC<TaskProps> = ({ boardId, task, taskIndex }) => {
                 onClick={() => {
                   setShowModal(!showModal);
                 }}
+                disabled={task.completed}
+                className={`${task.completed === true && "text-gray-800"}`}
               >
                 <PiDotsThreeOutlineFill />
               </button>
@@ -130,6 +144,13 @@ const Task: React.FC<TaskProps> = ({ boardId, task, taskIndex }) => {
           boardId={boardId}
           taskIndex={taskIndex}
           setShowModal={setShowModal}
+        />
+      )}
+      {showConfirm && (
+        <ConfirmationModal
+          message="Are you sure you want to delete this task?"
+          onConfirm={confirmDelete}
+          onCancel={() => setShowConfirm(false)}
         />
       )}
     </div>
